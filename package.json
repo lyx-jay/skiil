@@ -4,6 +4,7 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "start": "node ./index.js"
+    "start": "node ./index.js",
+    "install-skill": "./scripts/install.sh"
   }
 }
