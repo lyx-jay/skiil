@@ -1,84 +1,65 @@
 ---
 name: npm-package-publish
-description: 自动化发布 npm 包。包括升级版本号、根据最近提交生成 changelog 以及执行发布命令。当用户需要发布新版本时使用此 skill。
+description: 遵循业界标准（约定式提交）的自动化发布流程。包括前置检查、版本自动判定、Changelog 生成、版本发布及 Git 标签推送。
 ---
 
 # npm-package-publish
 
-此 skill 用于自动化 npm 包的发布流程。
+此 skill 用于按照业界标准流程自动化发布 npm 包。它依赖于 **约定式提交 (Conventional Commits)** 规范来自动管理版本和日志。
 
 ## 流程指令
 
-### 1. 准备工作
-- 检查 `package.json` 中的当前版本号和 `private` 字段。
-- 如果 `private` 为 `true`，提醒用户发布前需要将其修改为 `false` 或移除。
-- 确认当前分支为发布分支（通常是 `main` 或 `master`）。
+### 1. 预检与准备
+- **环境检查**：
+  - 确认 `package.json` 中 `private` 为 `false`。
+  - 确认当前处于发布分支（`main` 或 `master`）。
+- **状态检查**：确保本地工作区干净 (`git status`)。
+- **质量保证**：建议运行 `npm test` 和 `npm run build`。
 
-### 2. 确定版本升级类型
-- 询问用户升级类型：`patch` (补丁), `minor` (次版本), `major` (主版本)。
-- 如果用户未指定，默认建议 `patch`。
-
-### 3. 生成 Changelog
-- 获取自上一个版本（或上一个 tag）以来的所有提交记录：
+### 2. 版本判定 (基于提交规范)
+- 获取自上一个 tag 以来的提交：
   ```bash
   git log $(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)..HEAD --oneline
   ```
-- 总结提交内容，并按照以下规范更新 `CHANGELOG.md`：
-  - 如果项目中已有 `CHANGELOG.md`，遵循其现有格式。
-  - 如果没有，则创建一个遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/) 规范的标准文件。
+- **判定规则**：
+  - 若存在 `BREAKING CHANGE` 或提交类型后加 `!` (如 `feat!:`), 建议 `major`。
+  - 若存在 `feat:`, 建议 `minor`。
+  - 否则，建议 `patch`。
+- 告知用户建议的版本升级类型并请求确认。
 
-#### 标准 Changelog 模板：
-```markdown
-# Changelog
+### 3. 生成 Changelog 与更新版本
+1. **更新文件**：
+   - 执行 `npm version <patch|minor|major> --no-git-tag-version`。
+2. **更新 CHANGELOG.md**：
+   - 提取提交信息，按类型（Features, Bug Fixes, Chores）分类。
+   - 在 `CHANGELOG.md` 顶部插入新版本条目，格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)。
+   - 确保包含版本号和当前日期。
 
-All notable changes to this project will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
-## [Unreleased]
-
-## [版本号] - YYYY-MM-DD
-### Added
-- 新增功能说明
-### Changed
-- 变更功能说明
-### Fixed
-- 修复问题说明
-```
-
-### 4. 执行发布
-- 运行版本升级命令（这会自动创建 commit 和 tag）：
+### 4. 提交发布变更
+- 执行以下原子化操作：
   ```bash
-  npm version <patch|minor|major>
+  git add package.json package-lock.json CHANGELOG.md
+  git commit -m "chore(release): v[新版本号]"
+  git tag -a v[新版本号] -m "release v[新版本号]"
   ```
-- 执行发布命令：
-  ```bash
-  npm publish
-  ```
-- 如果需要特定的 tag（如 `beta`），使用 `npm publish --tag beta`。
+
+### 5. 推送与发布
+- **推送远端**：`git push origin HEAD --follow-tags`。
+- **执行发布**：`npm publish`（如需特定 tag，使用 `--tag`）。
 
 ## 使用示例
 
-### 示例 1：发布补丁版本
-**用户输入**：发布一个新版本，修复了一些 bug。
+### 示例：发布包含新特性的版本
+**用户输入**：我们要发个新版，加了用户搜索功能。
 **Agent 执行**：
-1. 识别为 `patch` 升级。
-2. 提取最近提交，例如 `fix: 修复了登录超时问题`。
-3. 更新 `CHANGELOG.md`，在 `## [0.0.2] - 2026-01-31` 下添加 `### Fixed: 修复了登录超时问题`。
-4. 执行 `npm version patch`。
-5. 执行 `npm publish`。
-
-### 示例 2：发布主版本
-**用户输入**：我们要发布 1.0.0 版本了，重构了核心逻辑。
-**Agent 执行**：
-1. 识别为 `major` 升级。
-2. 提取最近提交，例如 `feat!: 重构核心 API`。
-3. 更新 `CHANGELOG.md`。
-4. 执行 `npm version major`。
-5. 执行 `npm publish`。
+1. 检查工作区干净，运行并通过测试。
+2. 分析提交发现 `feat: 增加用户搜索功能`，建议 `minor`。
+3. 执行 `npm version minor --no-git-tag-version` (v1.1.0 -> v1.2.0)。
+4. 更新 `CHANGELOG.md`，添加 `## [1.2.0] - 2026-01-31` 及其下的 `### Added` 内容。
+5. 执行 `git add . && git commit -m "chore(release): v1.2.0" && git tag -a v1.2.0 -m "release v1.2.0"`。
+6. 推送并执行 `npm publish`。
 
 ## 注意事项
-- 确保在发布前已经执行了必要的构建步骤（如 `npm run build`）。
-- 确保本地代码已全部提交且工作区干净。
-- 如果发布失败，检查 npm 登录状态 (`npm whoami`)。
+- **约定式提交**：如果用户之前的提交不规范，Agent 应手动总结提交内容以确保 Changelog 的可读性。
+- **OTP**：如果用户开启了两步验证，发布时会提示输入 OTP。
+- **权限**：确保已执行过 `npm login`。
