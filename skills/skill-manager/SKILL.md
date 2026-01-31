@@ -10,13 +10,13 @@ description: 用于管理和安装本项目中的技能（skills）到各种开�
 ## 安装目标与方式
 
 ### 1. Cursor (项目级)
-将技能链接到当前项目的 `.cursor/skills/` 目录，仅在该项目内生效。
+将技能复制到当前项目的 `.cursor/skills/` 目录，仅在该项目内生效。
 ```bash
 ./scripts/install.sh <skill-name> cursor-local
 ```
 
 ### 2. Cursor (全局)
-将技能链接到系统的 `~/.cursor/skills/` 目录，在你电脑上的所有项目中生效。
+将技能复制到系统的 `~/.cursor/skills/` 目录，在你电脑上的所有项目中生效。
 ```bash
 ./scripts/install.sh <skill-name> cursor-global
 ```
@@ -38,8 +38,8 @@ description: 用于管理和安装本项目中的技能（skills）到各种开�
 当你开发了一个新的技能并希望测试它时：
 1. 运行 `./scripts/install.sh your-skill-name cursor-local`。
 2. 在对话框中尝试调用它。
-3. 修改 `skills/` 下的源文件，由于使用的是符号链接（Symlink），更改会立即生效。
+3. 修改 `skills/` 下的源文件后，需要再次运行安装命令以同步改动。
 
 ## 注意事项
-- 在 Windows 环境下，可能需要以管理员权限运行脚本以创建符号链接。
+- 在 Windows 环境下，建议使用 Git Bash 或 WSL 运行安装脚本。
 - 如果目标工具支持 [MCP (Model Context Protocol)](https://modelcontextprotocol.io/)，未来我们将提供一个统一的 MCP Server 来动态加载这些技能。

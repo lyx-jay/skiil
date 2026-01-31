@@ -23,13 +23,15 @@ case $TARGET in
     "cursor-local")
         DEST_DIR="$(pwd)/.cursor/skills/$SKILL_NAME"
         mkdir -p "$(pwd)/.cursor/skills"
-        ln -sfn "$SOURCE_DIR" "$DEST_DIR"
+        rm -rf "$DEST_DIR"
+        cp -R "$SOURCE_DIR" "$DEST_DIR"
         echo "✅ Installed '$SKILL_NAME' to Cursor (Local project)"
         ;;
     "cursor-global")
         DEST_DIR="$HOME/.cursor/skills/$SKILL_NAME"
         mkdir -p "$HOME/.cursor/skills"
-        ln -sfn "$SOURCE_DIR" "$DEST_DIR"
+        rm -rf "$DEST_DIR"
+        cp -R "$SOURCE_DIR" "$DEST_DIR"
         echo "✅ Installed '$SKILL_NAME' to Cursor (Global)"
         ;;
     "vscode")
