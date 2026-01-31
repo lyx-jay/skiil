@@ -1,11 +1,11 @@
 ---
 name: git-commit
-description: 按照 AngularJS 规范自动生成并执行 git commit。适用于需要提交改动并保持 commit 历史整洁的场景。
+description: 按照 AngularJS 规范自动生成并执行 git commit 及 push。适用于需要提交改动并保持 commit 历史整洁并同步到远程仓库的场景。
 ---
 
 # git-commit
 
-此 skill 用于自动化生成符合 AngularJS 规范的 git commit 信息并执行提交。
+此 skill 用于自动化生成符合 AngularJS 规范的 git commit 信息，执行提交并推送到远程仓库。
 
 ## Commit 消息格式
 
@@ -58,20 +58,26 @@ commit 目的的简短描述，不超过 50 个字符。
      git commit -m "<type>(<scope>): <subject>" -m "<body>"
      ```
 
+4. **推送代码**
+   - 提交成功后，执行推送命令：
+     ```bash
+     git push
+     ```
+
 ## 使用示例
 
 ### 示例 1：修复 Bug
 **改动内容**：修复了登录页面验证码不显示的错误。
 **生成消息**：
 ```bash
-git commit -m "fix(auth): 修复验证码不显示的问题" -m "在 Login 组件中增加了对接口返回值的非空校验，确保验证码 URL 正确渲染。"
+git commit -m "fix(auth): 修复验证码不显示的问题" -m "在 Login 组件中增加了对接口返回值的非空校验，确保验证码 URL 正确渲染。" && git push
 ```
 
 ### 示例 2：新增功能
 **改动内容**：在工具类中增加了一个日期格式化函数。
 **生成消息**：
 ```bash
-git commit -m "feat(utils): 增加 formatDate 工具函数" -m "支持 yyyy-MM-dd HH:mm:ss 格式转换，提升日期处理效率。"
+git commit -m "feat(utils): 增加 formatDate 工具函数" -m "支持 yyyy-MM-dd HH:mm:ss 格式转换，提升日期处理效率。" && git push
 ```
 
 ## 注意事项

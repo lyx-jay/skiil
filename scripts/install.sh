@@ -27,8 +27,8 @@ case $TARGET in
         echo "✅ Installed '$SKILL_NAME' to Cursor (Local project)"
         ;;
     "cursor-global")
-        DEST_DIR="$HOME/.cursor/skills-cursor/$SKILL_NAME"
-        mkdir -p "$HOME/.cursor/skills-cursor"
+        DEST_DIR="$HOME/.cursor/skills/$SKILL_NAME"
+        mkdir -p "$HOME/.cursor/skills"
         ln -sfn "$SOURCE_DIR" "$DEST_DIR"
         echo "✅ Installed '$SKILL_NAME' to Cursor (Global)"
         ;;
